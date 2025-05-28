@@ -1,4 +1,4 @@
-# TravelWise
+# TravelWise : Trips that plan themselves
 
 **TravelWise** is a comprehensive and intelligent travel planning web application that delivers personalized recommendations for destinations, hotels, restaurants, must-visit places, and adventure activities. It simplifies the end-to-end process of planning a trip by integrating real-time data, AI-based suggestions, interactive exploration, and downloadable itineraries in PDF format.
 
