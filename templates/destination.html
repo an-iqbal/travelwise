@@ -1,0 +1,655 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelWise - Destination Details</title>
+    <style>
+        :root {
+  --primary: #0066cc;
+  --accent: #ff4d4d;
+  --dark: #111827;
+  --darker: #0a0c13;
+  --light: #f9fafb;
+  --gray: #6b7280;
+  --text: #e2e8f0;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--darker);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* Modernized navbar with fixed positioning */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(10, 12, 19, 0.85);
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+}
+
+.logo {
+  color: var(--primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.logo::before {
+  content: "✈️";
+  margin-right: 10px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links li {
+  margin-left: 1.5rem;
+}
+
+.nav-links a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding: 0.5rem 0;
+  transition: all 0.3s;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--primary);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: var(--light);
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.nav-links li:last-child a {
+  background-color: var(--primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+.nav-links li:last-child a:hover {
+  background-color: #0052a3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+.menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--light);
+}
+
+/* Hero image layout */
+.container {
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+  background-color: var(--dark);
+  padding-top: 70px; /* Add space for fixed navbar */
+}
+
+.map-container {
+  width: 100%;
+  height: 60vh;
+  position: relative;
+  overflow: hidden;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Immersive full-width layout */
+.content-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: auto;
+  align-items: start; /* Align items to the top */
+}
+
+.image-container {
+  position: sticky;
+  top: 70px; /* Same as navbar height */
+  height: 50vh; /* Reduced height */
+  overflow: hidden;
+  align-self: start; /* Ensures it sticks to the top */
+}
+.destination-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.5s ease;
+}
+
+.image-container:hover .destination-image {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+}
+
+.info-container {
+  padding: 3rem;
+  background-color: var(--dark);
+  overflow-y: visible;
+  position: relative;
+  min-height: 100vh; /* Ensure enough scrollable content */
+}
+
+/* Content styling */
+h1 {
+  color: var(--light);
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+h1::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background-color: var(--accent);
+  border-radius: 2px;
+}
+
+p {
+  line-height: 1.8;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+}
+
+.info-box {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.info-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+}
+
+.info-box h3 {
+  margin-top: 0;
+  color: var(--light);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Modern tab-style recommendations */
+.recommendation-buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0;
+  margin: 2rem 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recommendation-buttons::-webkit-scrollbar {
+  display: none;
+}
+
+.recommendation-btn {
+  background-color: transparent;
+  color: var(--gray);
+  border: none;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s;
+  position: relative;
+  white-space: nowrap;
+}
+
+.recommendation-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background-color: var(--primary);
+  transition: width 0.3s ease;
+}
+
+.recommendation-btn:hover {
+  color: var(--light);
+}
+
+.recommendation-btn.active {
+  color: var(--light);
+}
+
+.recommendation-btn.active::after {
+  width: 100%;
+}
+
+.recommendation-content {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 1.5rem;
+  animation: fadeIn 0.5s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.recommendation-content h3 {
+  color: var(--light);
+  margin-top: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.recommendation-content ul {
+  padding-left: 1.25rem;
+}
+
+.recommendation-content li {
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.recommendation-content li strong {
+  color: var(--light);
+  font-weight: 600;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Additional enhancements */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.stat-card {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: var(--gray);
+  font-size: 0.9rem;
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+  .content-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .image-container {
+    position: relative; /* Change from sticky to relative on smaller screens */
+    height: 40vh; /* Slightly smaller height on mobile */
+    top: auto; /* Remove the sticky positioning */
+  }
+  
+  .info-container {
+    padding: 2rem;
+    min-height: auto; /* Reset the min-height */
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem;
+  }
+  
+  .menu-btn {
+    display: block;
+  }
+  
+  .nav-links {
+    position: fixed;
+    top: 70px;
+    right: -100%;
+    flex-direction: column;
+    background-color: var(--darker);
+    width: 80%;
+    height: calc(100vh - 70px);
+    padding: 2rem;
+    transition: right 0.3s ease;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+  }
+  
+  .nav-links.active {
+    right: 0;
+  }
+  
+  .nav-links li {
+    margin: 1.25rem 0;
+  }
+  
+  .map-container {
+  width: 100%;
+  height: 40vh;
+  position: relative;
+  overflow: hidden;
+  z-index: 1; /* Ensure it doesn't interfere with sticky positioning */
+}
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .info-box {
+    padding: 1.5rem;
+  }
+}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">TravelWise</div>
+        <button class="menu-btn">☰</button>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/recommendations">Get Recommendations</a></li>
+            <li><a href="/plan-trip">Plan Trip</a></li>
+            <li><a href="#">Check Finances</a></li>
+            <li><a href="#">User</a></li>
+        </ul>
+    </nav>
+        
+    <div class="container">
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+        
+        <div class="content-container">
+            <div class="info-container">
+                <h1 id="destination-name">Destination Details</h1>
+                
+                <div id="place-info" class="info-box">
+                    <h3>Loading destination information...</h3>
+                    <p>Please wait while we fetch the latest details.</p>
+                </div>
+                
+                <div id="travel-guide" class="info-box">
+                    <h3>Travel Guide</h3>
+                    <div id="travel-guide-content">
+                        <p>Loading travel guide information...</p>
+                    </div>
+                </div>
+                
+                <div id="tourism-facts" class="info-box">
+                    <h3>Tourism Facts</h3>
+                    <div id="tourism-facts-content">
+                        <p>Loading interesting facts about this destination...</p>
+                    </div>
+                </div>
+                
+                <div class="recommendation-buttons">
+                    <a href="/hotels?destination=" class="recommendation-btn" id="hotels-btn">Hotel Recommendations</a>
+                    <a href="/attractions?destination=" class="recommendation-btn" id="attractions-btn">Must Visit Places</a>
+                    <a href="/adventure?destination=" class="recommendation-btn" id="adventure-btn">Adventure Activities</a>
+                    <a href="/cuisine?destination=" class="recommendation-btn" id="cuisine-btn">Local Cuisine</a>
+                </div>
+            </div>
+            
+            <div class="image-container">
+                <img id="destination-image" src="" alt="Destination Image" class="destination-image">
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let map;
+        let service;
+        let infowindow;
+        let destinationData = {};
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get destination name from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const destinationName = urlParams.get('name');
+            
+            if (destinationName) {
+                document.getElementById('destination-name').textContent = destinationName;
+                document.title = `TravelWise - ${destinationName}`;
+                
+                // Update links with destination name
+                document.getElementById('hotels-btn').href += encodeURIComponent(destinationName);
+                document.getElementById('attractions-btn').href += encodeURIComponent(destinationName);
+                document.getElementById('adventure-btn').href += encodeURIComponent(destinationName);
+                document.getElementById('cuisine-btn').href += encodeURIComponent(destinationName);
+                
+                // Fetch place details from backend
+                fetchPlaceDetails(destinationName);
+                
+                // Fetch dynamic travel guide and tourism facts using Gemini
+                fetchDynamicTravelGuide(destinationName);
+                fetchDynamicTourismFacts(destinationName);
+            } else {
+                document.getElementById('place-info').innerHTML = "<p>No destination was specified in the URL.</p>";
+                document.getElementById('travel-guide-content').innerHTML = "<p>No destination was specified in the URL.</p>";
+                document.getElementById('tourism-facts-content').innerHTML = "<p>No destination was specified in the URL.</p>";
+            }
+        });
+        
+        function fetchPlaceDetails(destination) {
+            fetch(`/api/place-details?name=${encodeURIComponent(destination)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Place data:", data);
+                    
+                    if (data.success) {
+                        destinationData = data.place;
+                        initMap(data.place);
+                        updatePlaceInfo(data.place);
+                        
+                        // Update image if available
+                        if (data.place.photos && data.place.photos.length > 0) {
+                            document.getElementById('destination-image').src = data.place.photos[0];
+                        } else {
+                            document.getElementById('destination-image').src = "https://via.placeholder.com/600x800?text=No+Image+Available";
+                        }
+                    } else {
+                        document.getElementById('place-info').innerHTML = `<p>Error: ${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    document.getElementById('place-info').innerHTML = `<p>Error fetching place details: ${error}</p>`;
+                });
+        }
+        
+        function fetchDynamicTravelGuide(destination) {
+    fetch(`/api/travel-guide?name=${encodeURIComponent(destination)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Just insert the HTML directly without any formatting
+                document.getElementById('travel-guide-content').innerHTML = data.travel_guide;
+            } else {
+                document.getElementById('travel-guide-content').innerHTML = `<p>Error: ${data.error}</p>`;
+            }
+        })
+        .catch(error => {
+            console.error("Fetch error:", error);
+            document.getElementById('travel-guide-content').innerHTML = `<p>Error fetching travel guide: ${error}</p>`;
+        });
+}
+        
+function fetchDynamicTourismFacts(destination) {
+    fetch(`/api/tourism-facts?name=${encodeURIComponent(destination)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Just insert the HTML directly
+                document.getElementById('tourism-facts-content').innerHTML = data.tourism_facts;
+            } else {
+                document.getElementById('tourism-facts-content').innerHTML = `<p>Error: ${data.error}</p>`;
+            }
+        })
+        .catch(error => {
+            console.error("Fetch error:", error);
+            document.getElementById('tourism-facts-content').innerHTML = `<p>Error fetching tourism facts: ${error}</p>`;
+        });
+}
+        
+        function initMap(place) {
+            const lat = parseFloat(place.geometry.location.lat);
+            const lng = parseFloat(place.geometry.location.lng);
+            const mapOptions = {
+                center: { lat, lng },
+                zoom: 14
+            };
+            
+            map = new google.maps.Map(document.getElementById('map'), mapOptions);
+            
+            const marker = new google.maps.Marker({
+                position: { lat, lng },
+                map: map,
+                title: place.name
+            });
+            
+            infowindow = new google.maps.InfoWindow({
+                content: `<strong>${place.name}</strong><br>${place.formatted_address || ''}`
+            });
+            
+            marker.addListener('click', () => {
+                infowindow.open(map, marker);
+            });
+            
+            // Open info window by default
+            infowindow.open(map, marker);
+        }
+        
+        function updatePlaceInfo(place) {
+            let infoHTML = `
+                <h3>${place.name}</h3>
+                <p><strong>Address:</strong> ${place.formatted_address || 'Not available'}</p>
+            `;
+            
+            if (place.formatted_phone_number) {
+                infoHTML += `<p><strong>Phone:</strong> ${place.formatted_phone_number}</p>`;
+            }
+            
+            if (place.rating) {
+                infoHTML += `<p><strong>Rating:</strong> ${place.rating} / 5 (${place.user_ratings_total || 0} reviews)</p>`;
+            }
+            
+            if (place.website) {
+                infoHTML += `<p><strong>Website:</strong> <a href="${place.website}" target="_blank">${place.website}</a></p>`;
+            }
+            
+            if (place.opening_hours && place.opening_hours.weekday_text) {
+                infoHTML += `<p><strong>Hours:</strong></p><ul>`;
+                place.opening_hours.weekday_text.forEach(day => {
+                    infoHTML += `<li>${day}</li>`;
+                });
+                infoHTML += `</ul>`;
+            }
+            
+            document.getElementById('place-info').innerHTML = infoHTML;
+        }
+    </script>
+    
+    <!-- Load Google Maps API -->
+    <script async defer src="/api/gmaps-js"></script>
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+

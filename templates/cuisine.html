@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TravelWise - Hotel Recommendations</title>
+        <style>
+:root {
+    --primary: #0066cc;
+    --accent: #ff4d4d;
+    --dark: #111827;
+    --darker: #0a0c13;
+    --light: #f9fafb;
+    --gray: #6b7280;
+    --text: #e2e8f0;
+  }
+  
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--darker);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  
+  /* Navbar styling */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(10, 12, 19, 0.85);
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-sizing: border-box;
+  }
+  
+  .logo {
+    color: var(--primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo::before {
+    content: "✈️";
+    margin-right: 10px;
+  }
+  
+  .nav-links {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-links li {
+    margin-left: 1.5rem;
+  }
+  
+  .nav-links a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    position: relative;
+    padding: 0.5rem 0;
+    transition: all 0.3s;
+  }
+  
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary);
+    transition: width 0.3s ease;
+  }
+  
+  .nav-links a:hover {
+    color: var(--light);
+  }
+  
+  .nav-links a:hover::after {
+    width: 100%;
+  }
+  
+  .nav-links li:last-child a {
+    background-color: var(--primary);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+  }
+  
+  .nav-links li:last-child a:hover {
+    background-color: #0052a3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+  }
+  
+  .menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--light);
+  }
+  
+  /* Main content container */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 7rem 2rem 2rem;
+  }
+  
+  .page-title {
+    color: var(--light);
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    position: relative;
+    padding-bottom: 0.75rem;
+  }
+  
+  .page-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background-color: var(--accent);
+    border-radius: 2px;
+  }
+  
+  .page-subtitle {
+    color: var(--gray);
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+    max-width: 800px;
+  }
+  
+  /* Cuisine info section */
+  .cuisine-info {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .cuisine-overview h2 {
+    color: var(--light);
+    font-size: 1.8rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+  
+  .cuisine-introduction {
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+  
+  .must-try-dishes h3,
+  .dining-customs h3,
+  .seasonal-info h3 {
+    color: var(--light);
+    font-size: 1.4rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .must-try-dishes ul,
+  .dining-customs ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .must-try-dishes li,
+  .dining-customs li {
+    margin-bottom: 1.5rem;
+  }
+  
+  .dish-name,
+  .custom-title {
+    font-weight: 600;
+    color: var(--light);
+    margin-bottom: 0.5rem;
+  }
+  
+  .dish-description,
+  .custom-description {
+    color: var(--gray);
+    line-height: 1.5;
+  }
+  
+  /* Restaurants container with two-column layout */
+  .restaurants-container {
+    display: flex;
+    gap: 2rem;
+  }
+  
+  .restaurant-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .restaurant-photo-container {
+    width: 40%;
+    position: sticky;
+    top: 100px;
+    height: calc(100vh - 150px);
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .restaurant-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.5s ease;
+  }
+  
+  .restaurant-photo-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    color: var(--light);
+    padding: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .no-photo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--gray);
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  /* Restaurant cards */
+  .restaurant-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    padding: 2rem;
+  }
+  
+  .restaurant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .restaurant-info {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--dark);
+  }
+  
+  .restaurant-info::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .restaurant-info::-webkit-scrollbar-track {
+    background: var(--dark);
+  }
+  
+  .restaurant-info::-webkit-scrollbar-thumb {
+    background-color: var(--primary);
+    border-radius: 3px;
+  }
+  
+  .restaurant-name {
+    font-size: 1.8rem;
+    color: var(--light);
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+  }
+  
+  .restaurant-location {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .restaurant-location::before {
+    content: "📍";
+    margin-right: 6px;
+  }
+  
+  .restaurant-cuisine {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    margin-right: 0.75rem;
+  }
+  
+  .restaurant-price {
+    color: var(--accent);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+    background-color: rgba(255, 77, 77, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+  }
+  
+  .restaurant-description {
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+  
+  .section-title {
+    color: var(--light);
+    font-size: 1.2rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+  }
+  
+  /* Opening hours and details */
+  .restaurant-details {
+    margin-top: 1.5rem;
+  }
+  
+  .opening-hours ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  
+  .opening-hours li {
+    margin-bottom: 0.5rem;
+    color: var(--gray);
+  }
+  
+  .restaurant-address p,
+  .restaurant-phone p {
+    color: var(--gray);
+    margin-top: 0.5rem;
+  }
+  
+  /* Ratings section */
+  .ratings {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .rating-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .rating-label {
+    color: var(--gray);
+    margin-right: 1rem;
+  }
+  
+  .rating-score {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--light);
+  }
+  
+  .star {
+    color: #ffd700;
+    margin-left: 0.25rem;
+  }
+  
+  .total-reviews {
+    color: var(--gray);
+    font-size: 0.85rem;
+    margin-left: 0.5rem;
+  }
+  
+  /* Review section */
+  .review {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .review-author {
+    font-weight: 600;
+  }
+  
+  .review-date {
+    color: var(--gray);
+    font-size: 0.85rem;
+  }
+  
+  .review-rating {
+    color: #ffd700;
+    margin-bottom: 0.5rem;
+  }
+  
+  .review-text {
+    font-style: italic;
+    color: var(--gray);
+  }
+  
+  /* Website link */
+  .restaurant-website {
+    margin-top: 2rem;
+  }
+  
+  .restaurant-website a {
+    display: inline-block;
+    background-color: var(--primary);
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .restaurant-website a:hover {
+    background-color: #0052a3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+  }
+  
+  /* Loading state */
+  .loading {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: var(--gray);
+  }
+  
+  /* Load more button */
+  .load-more-container {
+    text-align: center;
+    margin-top: 3rem;
+  }
+  
+  #load-more-btn {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  #load-more-btn:hover {
+    background-color: #0052a3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+  }
+  
+  #load-more-btn:disabled {
+    background-color: var(--gray);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 1200px) {
+    .restaurants-container {
+      flex-direction: column-reverse;
+    }
+    
+    .restaurant-photo-container {
+      width: 100%;
+      position: relative;
+      top: 0;
+      height: 400px;
+      margin-bottom: 2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .navbar {
+      padding: 1rem;
+    }
+    
+    .menu-btn {
+      display: block;
+    }
+  
+    #fixed-restaurant-photo .restaurant-photo-caption {
+      font-size: 1.2rem;
+      padding: 1rem;
+    }
+    
+    .nav-links {
+      position: fixed;
+      top: 70px;
+      right: -100%;
+      flex-direction: column;
+      background-color: var(--darker);
+      width: 80%;
+      height: calc(100vh - 70px);
+      padding: 2rem;
+      transition: right 0.3s ease;
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+    
+    .nav-links.active {
+      right: 0;
+    }
+    
+    .nav-links li {
+      margin: 1.25rem 0;
+    }
+    
+    .container {
+      padding: 7rem 1rem 1rem;
+    }
+    
+    .page-title {
+      font-size: 2rem;
+    }
+    
+    .restaurant-photo-container {
+      height: 300px;
+    }
+  }
+</style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">TravelWise</div>
+        <button class="menu-btn">☰</button>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/recommendations">Get Recommendations</a></li>
+            <li><a href="/plan-trip">Plan Trip</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <h1 class="page-title">Must-Try Restaurants in <span id="destination-name">{{ destination }}</span></h1>
+        <p class="page-subtitle">Discover our top recommended restaurants and local cuisine for your trip to {{ destination }}. From local specialties to international favorites, we've handpicked the best dining experiences.</p>
+        
+        <div class="cuisine-info" id="cuisine-info">
+            <div class="loading">Loading local cuisine information...</div>
+        </div>
+        
+        <div class="restaurants-container">
+            <div class="restaurant-list" id="restaurant-list">
+                <div class="loading">Loading restaurant recommendations...</div>
+            </div>
+            
+            <div class="restaurant-photo-container" id="fixed-restaurant-photo">
+                <!-- Fixed restaurant photo will be displayed here -->
+                <div class="no-photo">Loading restaurant photos...</div>
+            </div>
+        </div>
+        
+        <div class="load-more-container">
+            <button id="load-more-btn" style="display: none;">Load More Restaurants</button>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuBtn = document.querySelector('.menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                });
+            }
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.menu-btn') && !event.target.closest('.nav-links')) {
+                    navLinks.classList.remove('active');
+                }
+            });
+            
+            // Get destination from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const destination = urlParams.get('destination') || 'Popular Destinations';            
+            document.getElementById('destination-name').textContent = destination;
+            document.title = `TravelWise - Restaurants in ${destination}`;
+            
+            // Fetch local cuisine information
+            fetchLocalCuisine(destination);
+            
+            // Fetch restaurant recommendations
+            fetchRestaurantRecommendations(destination);
+            
+            // Setup scroll event listener to update fixed photo
+            window.addEventListener('scroll', updateFixedRestaurantPhoto);
+            
+            // Setup load more button
+            document.getElementById('load-more-btn').addEventListener('click', function() {
+                const offset = document.querySelectorAll('.restaurant-card').length;
+                fetchMoreRestaurantRecommendations(destination, offset);
+            });
+        });
+        
+        let allRestaurants = [];
+        let currentRestaurantIndex = 0;
+        
+        function fetchLocalCuisine(destination) {
+            fetch(`/api/local-cuisine?destination=${encodeURIComponent(destination)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        renderLocalCuisine(data.cuisine_data);
+                    } else {
+                        document.getElementById('cuisine-info').innerHTML = `<p>Error: ${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    document.getElementById('cuisine-info').innerHTML = `
+                        <div class="error-message">
+                            <p>Error fetching local cuisine information. Please try again later.</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        function renderLocalCuisine(cuisineData) {
+            const cuisineInfoElement = document.getElementById('cuisine-info');
+            
+            if (!cuisineData) {
+                cuisineInfoElement.innerHTML = '<p>No local cuisine information available for this destination.</p>';
+                return;
+            }
+            
+            cuisineInfoElement.innerHTML = `
+                <div class="cuisine-overview">
+                    <h2>Local Cuisine</h2>
+                    <div class="cuisine-introduction">
+                        <p>${cuisineData.introduction}</p>
+                    </div>
+                    
+                    <div class="must-try-dishes">
+                        <h3>Must-Try Local Dishes</h3>
+                        <ul>
+                            ${cuisineData.must_try_dishes.map(dish => `
+                                <li>
+                                    <div class="dish-name">${dish.name}</div>
+                                    <div class="dish-description">${dish.description}</div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="dining-customs">
+                        <h3>Local Dining Customs</h3>
+                        <ul>
+                            ${cuisineData.dining_customs.map(custom => `
+                                <li>
+                                    <div class="custom-title">${custom.title}</div>
+                                    <div class="custom-description">${custom.description}</div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    
+                    ${cuisineData.seasonal_info ? `
+                        <div class="seasonal-info">
+                            <h3>Seasonal Specialties</h3>
+                            <p>${cuisineData.seasonal_info}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        function fetchRestaurantRecommendations(destination) {
+            fetch(`/api/restaurants?destination=${encodeURIComponent(destination)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        allRestaurants = data.restaurants;
+                        renderRestaurantRecommendations(data.restaurants);
+                        if (data.restaurants.length > 0) {
+                            updateFixedRestaurantPhoto();
+                            document.getElementById('load-more-btn').style.display = 'block';
+                        }
+                    } else {
+                        document.getElementById('restaurant-list').innerHTML = `<p>Error: ${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    document.getElementById('restaurant-list').innerHTML = `
+                        <div class="restaurant-card">
+                            <div class="restaurant-info">
+                                <p>Error fetching restaurant recommendations. Please try again later.</p>
+                                <p>Technical details: ${error.message}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+        
+        function fetchMoreRestaurantRecommendations(destination, offset) {
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            loadMoreBtn.textContent = 'Loading...';
+            loadMoreBtn.disabled = true;
+            
+            fetch(`/api/more-restaurants?destination=${encodeURIComponent(destination)}&offset=${offset}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.restaurants.length > 0) {
+                        allRestaurants = [...allRestaurants, ...data.restaurants];
+                        appendRestaurantRecommendations(data.restaurants);
+                        loadMoreBtn.textContent = 'Load More Restaurants';
+                        loadMoreBtn.disabled = false;
+                    } else {
+                        loadMoreBtn.textContent = 'No More Restaurants Available';
+                        loadMoreBtn.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    loadMoreBtn.textContent = 'Load More Restaurants';
+                    loadMoreBtn.disabled = false;
+                    alert('Error loading more restaurants. Please try again.');
+                });
+        }
+        
+        function renderRestaurantRecommendations(restaurants) {
+            const restaurantListElement = document.getElementById('restaurant-list');
+            
+            if (!restaurants || restaurants.length === 0) {
+                restaurantListElement.innerHTML = '<p>No restaurant recommendations available for this destination.</p>';
+                return;
+            }
+            
+            restaurantListElement.innerHTML = '';
+            
+            restaurants.forEach((restaurant, index) => {
+                const restaurantElement = document.createElement('div');
+                restaurantElement.className = 'restaurant-card';
+                restaurantElement.id = `restaurant-${index}`;
+                restaurantElement.dataset.index = index;
+                
+                // Convert price level to $ symbols
+                const priceLevel = restaurant.price_level ? '₹'.repeat(restaurant.price_level) : 'N/A';
+                
+                restaurantElement.innerHTML = `
+                    <div class="restaurant-info">
+                        <h2 class="restaurant-name">${restaurant.name}</h2>
+                        <div class="restaurant-location">${restaurant.location}</div>
+                        <div class="restaurant-cuisine">${restaurant.cuisine}</div>
+                        <div class="restaurant-price">${priceLevel}</div>
+                        <p class="restaurant-description">${restaurant.description}</p>
+                        
+                        <div class="restaurant-details">
+                            ${restaurant.opening_hours && restaurant.opening_hours.length > 0 ? 
+                                `<h3 class="section-title">Opening Hours</h3>
+                                <div class="opening-hours">
+                                    <ul>
+                                        ${restaurant.opening_hours.map(hours => `<li>${hours}</li>`).join('')}
+                                    </ul>
+                                </div>` : ''
+                            }
+                            
+                            ${restaurant.address ? 
+                                `<div class="restaurant-address">
+                                    <h3 class="section-title">Address</h3>
+                                    <p>${restaurant.address}</p>
+                                </div>` : ''
+                            }
+                            
+                            ${restaurant.phone ? 
+                                `<div class="restaurant-phone">
+                                    <h3 class="section-title">Phone</h3>
+                                    <p>${restaurant.phone}</p>
+                                </div>` : ''
+                            }
+                        </div>
+                        
+                        <h3 class="section-title">Ratings</h3>
+                        <div class="ratings">
+                            <div class="rating-item">
+                                <div class="rating-label">Overall</div>
+                                <div class="rating-score">${restaurant.rating || 'N/A'} <span class="star">★</span></div>
+                                <div class="total-reviews">${restaurant.total_reviews ? `(${restaurant.total_reviews} reviews)` : ''}</div>
+                            </div>
+                        </div>
+                        
+                        ${restaurant.featured_review ? 
+                            `<h3 class="section-title">Featured Review</h3>
+                            <div class="review">
+                                <div class="review-header">
+                                    <div class="review-author">${restaurant.featured_review.author}</div>
+                                    <div class="review-date">${restaurant.featured_review.time || 'Recently'}</div>
+                                </div>
+                                <div class="review-rating">${'★'.repeat(Math.round(restaurant.featured_review.rating))}${'☆'.repeat(5-Math.round(restaurant.featured_review.rating))}</div>
+                                <div class="review-text">"${restaurant.featured_review.text}"</div>
+                            </div>` : ''
+                        }
+                        
+                        ${restaurant.website ? 
+                            `<div class="restaurant-website">
+                                <a href="${restaurant.website}" target="_blank" rel="noopener noreferrer">Visit Website</a>
+                            </div>` : ''
+                        }
+                    </div>
+                `;
+                
+                restaurantListElement.appendChild(restaurantElement);
+            });
+        }
+        
+        function appendRestaurantRecommendations(restaurants) {
+            const restaurantListElement = document.getElementById('restaurant-list');
+            const startIndex = allRestaurants.length - restaurants.length;
+            
+            restaurants.forEach((restaurant, relativeIndex) => {
+                const index = startIndex + relativeIndex;
+                const restaurantElement = document.createElement('div');
+                restaurantElement.className = 'restaurant-card';
+                restaurantElement.id = `restaurant-${index}`;
+                restaurantElement.dataset.index = index;
+                
+                // Convert price level to $ symbols
+                const priceLevel = restaurant.price_level ? '₹'.repeat(restaurant.price_level) : 'N/A';
+                
+                restaurantElement.innerHTML = `
+                    <div class="restaurant-info">
+                        <h2 class="restaurant-name">${restaurant.name}</h2>
+                        <div class="restaurant-location">${restaurant.location}</div>
+                        <div class="restaurant-cuisine">${restaurant.cuisine}</div>
+                        <div class="restaurant-price">${priceLevel}</div>
+                        <p class="restaurant-description">${restaurant.description}</p>
+                        
+                        <div class="restaurant-details">
+                            ${restaurant.opening_hours && restaurant.opening_hours.length > 0 ? 
+                                `<h3 class="section-title">Opening Hours</h3>
+                                <div class="opening-hours">
+                                    <ul>
+                                        ${restaurant.opening_hours.map(hours => `<li>${hours}</li>`).join('')}
+                                    </ul>
+                                </div>` : ''
+                            }
+                            
+                            ${restaurant.address ? 
+                                `<div class="restaurant-address">
+                                    <h3 class="section-title">Address</h3>
+                                    <p>${restaurant.address}</p>
+                                </div>` : ''
+                            }
+                            
+                            ${restaurant.phone ? 
+                                `<div class="restaurant-phone">
+                                    <h3 class="section-title">Phone</h3>
+                                    <p>${restaurant.phone}</p>
+                                </div>` : ''
+                            }
+                        </div>
+                        
+                        <h3 class="section-title">Ratings</h3>
+                        <div class="ratings">
+                            <div class="rating-item">
+                                <div class="rating-label">Overall</div>
+                                <div class="rating-score">${restaurant.rating || 'N/A'} <span class="star">★</span></div>
+                                <div class="total-reviews">${restaurant.total_reviews ? `(${restaurant.total_reviews} reviews)` : ''}</div>
+                            </div>
+                        </div>
+                        
+                        // Continuing from where the restaurant code was cut off (in the featured_review section)
+                        ${restaurant.featured_review ? 
+                            `<h3 class="section-title">Featured Review</h3>
+                            <div class="review">
+                                <div class="review-header">
+                                    <div class="review-author">${restaurant.featured_review.author}</div>
+                                    <div class="review-date">${restaurant.featured_review.time || 'Recently'}</div>
+                                </div>
+                                <div class="review-rating">${'★'.repeat(Math.round(restaurant.featured_review.rating))}${'☆'.repeat(5-Math.round(restaurant.featured_review.rating))}</div>
+                                <div class="review-text">"${restaurant.featured_review.text}"</div>
+                            </div>` : ''
+                        }
+                        
+                        ${restaurant.website ? 
+                            `<div class="restaurant-website">
+                                <a href="${restaurant.website}" target="_blank" rel="noopener noreferrer">Visit Website</a>
+                            </div>` : ''
+                        }
+                    </div>
+                `;
+                
+                restaurantListElement.appendChild(restaurantElement);
+            });
+            
+            updateFixedRestaurantPhoto();
+        }
+        
+        function updateFixedRestaurantPhoto() {
+            if (allRestaurants.length === 0) return;
+            
+            const restaurantCards = document.querySelectorAll('.restaurant-card');
+            if (restaurantCards.length === 0) return;
+            
+            const fixedPhotoElement = document.getElementById('fixed-restaurant-photo');
+            const viewportHeight = window.innerHeight;
+            const scrollTop = window.scrollY;
+            
+            // Determine which restaurant card is currently most visible in the viewport
+            let maxVisibleHeight = 0;
+            let mostVisibleRestaurantIndex = 0;
+            
+            restaurantCards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const visibleHeight = Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
+                
+                if (visibleHeight > maxVisibleHeight) {
+                    maxVisibleHeight = visibleHeight;
+                    mostVisibleRestaurantIndex = parseInt(card.dataset.index);
+                }
+            });
+            
+            // Update photo only if the most visible restaurant changed
+            if (currentRestaurantIndex !== mostVisibleRestaurantIndex) {
+                currentRestaurantIndex = mostVisibleRestaurantIndex;
+                const restaurant = allRestaurants[currentRestaurantIndex];
+                
+                if (restaurant && restaurant.photos && restaurant.photos.length > 0) {
+                    fixedPhotoElement.innerHTML = `
+                        <img src="${restaurant.photos[0]}" alt="${restaurant.name}" class="restaurant-photo">
+                        <div class="restaurant-photo-caption">${restaurant.name}</div>
+                    `;
+                } else {
+                    // Use a placeholder if no photos available
+                    fixedPhotoElement.innerHTML = `
+                        <img src="https://source.unsplash.com/random/600x400?restaurant,food,${currentRestaurantIndex}" alt="${restaurant.name}" class="restaurant-photo">
+                        <div class="restaurant-photo-caption">${restaurant.name}</div>
+                    `;
+                }
+            }
+        }
+    </script>
+</body>

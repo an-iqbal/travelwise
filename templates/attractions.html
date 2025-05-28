@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TravelWise - Hotel Recommendations</title>
+        <style>
+            :root {
+            --primary: #0066cc;
+            --accent: #ff4d4d;
+            --dark: #111827;
+            --darker: #0a0c13;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --text: #e2e8f0;
+            }
+
+            body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--darker);
+            color: var(--text);
+            min-height: 100vh;
+            }
+
+            /* Navbar styling */
+            .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(10, 12, 19, 0.85);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            box-sizing: border-box;
+            }
+
+            .logo {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            }
+
+            .logo::before {
+            content: "✈️";
+            margin-right: 10px;
+            }
+
+            .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            }
+
+            .nav-links li {
+            margin-left: 1.5rem;
+            }
+
+            .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: all 0.3s;
+            }
+
+            .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+            }
+
+            .nav-links a:hover {
+            color: var(--light);
+            }
+
+            .nav-links a:hover::after {
+            width: 100%;
+            }
+
+            .nav-links li:last-child a {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            }
+
+            .nav-links li:last-child a:hover {
+            background-color: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+            }
+
+            .menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--light);
+            }
+
+            /* Main content container */
+            .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 7rem 2rem 2rem;
+            }
+
+            .page-title {
+            color: var(--light);
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 0.75rem;
+            }
+
+            .page-title::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background-color: var(--accent);
+            border-radius: 2px;
+            }
+
+            .page-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            max-width: 800px;
+            }
+
+            /* Attractions container with two-column layout */
+            .attractions-container {
+            display: flex;
+            gap: 2rem;
+            }
+
+            .attraction-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            }
+
+            .attraction-photo-container {
+            width: 40%;
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 150px);
+            background-color: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            overflow: hidden;
+            }
+
+            .attraction-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+            }
+
+            .attraction-photo-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            color: var(--light);
+            padding: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            }
+
+            .no-photo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--gray);
+            text-align: center;
+            padding: 2rem;
+            }
+
+            /* Attraction cards */
+            .attraction-card {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            padding: 2rem;
+            }
+
+            .attraction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            .attraction-info {
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--dark);
+            }
+
+            .attraction-info::-webkit-scrollbar {
+            width: 6px;
+            }
+
+            .attraction-info::-webkit-scrollbar-track {
+            background: var(--dark);
+            }
+
+            .attraction-info::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 3px;
+            }
+
+            .attraction-name {
+            font-size: 1.8rem;
+            color: var(--light);
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            }
+
+            .attraction-location {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            }
+
+            .attraction-location::before {
+            content: "📍";
+            margin-right: 6px;
+            }
+
+            .attraction-type {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            }
+
+            .attraction-description {
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            }
+
+            .section-title {
+            color: var(--light);
+            font-size: 1.2rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+            }
+
+            /* Opening hours and details */
+            .attraction-details {
+            margin-top: 1.5rem;
+            }
+
+            .opening-hours ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            }
+
+            .opening-hours li {
+            margin-bottom: 0.5rem;
+            color: var(--gray);
+            }
+
+            .attraction-address p {
+            color: var(--gray);
+            margin-top: 0.5rem;
+            }
+
+            /* Ratings section */
+            .ratings {
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            }
+
+            .rating-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            }
+
+            .rating-label {
+            color: var(--gray);
+            margin-right: 1rem;
+            }
+
+            .rating-score {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            color: var(--light);
+            }
+
+            .star {
+            color: #ffd700;
+            margin-left: 0.25rem;
+            }
+
+            .total-reviews {
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+            }
+
+            /* Review section */
+            .review {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            }
+
+            .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            }
+
+            .review-author {
+            font-weight: 600;
+            }
+
+            .review-date {
+            color: var(--gray);
+            font-size: 0.85rem;
+            }
+
+            .review-rating {
+            color: #ffd700;
+            margin-bottom: 0.5rem;
+            }
+
+            .review-text {
+            font-style: italic;
+            color: var(--gray);
+            }
+
+            /* Website link */
+            .attraction-website {
+            margin-top: 2rem;
+            }
+
+            .attraction-website a {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            }
+
+            .attraction-website a:hover {
+            background-color: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+            }
+
+            /* Loading state */
+            .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: var(--gray);
+            }
+
+            /* Load more button */
+            .load-more-container {
+            text-align: center;
+            margin-top: 3rem;
+            }
+
+            #load-more-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            }
+
+            #load-more-btn:hover {
+            background-color: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+            }
+
+            #load-more-btn:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            }
+
+            /* Responsive design */
+            @media (max-width: 1200px) {
+            .attractions-container {
+                flex-direction: column-reverse;
+            }
+            
+            .attraction-photo-container {
+                width: 100%;
+                position: relative;
+                top: 0;
+                height: 400px;
+                margin-bottom: 2rem;
+            }
+            }
+
+            @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+            
+            .menu-btn {
+                display: block;
+            }
+
+            #fixed-attraction-photo .attraction-photo-caption {
+                font-size: 1.2rem;
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                right: -100%;
+                flex-direction: column;
+                background-color: var(--darker);
+                width: 80%;
+                height: calc(100vh - 70px);
+                padding: 2rem;
+                transition: right 0.3s ease;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+            }
+            
+            .nav-links.active {
+                right: 0;
+            }
+            
+            .nav-links li {
+                margin: 1.25rem 0;
+            }
+            
+            .container {
+                padding: 7rem 1rem 1rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .attraction-photo-container {
+                height: 300px;
+            }
+            }
+</style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">TravelWise</div>
+        <button class="menu-btn">☰</button>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/recommendations">Get Recommendations</a></li>
+            <li><a href="/plan-trip">Plan Trip</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <h1 class="page-title">Must-Visit Places in <span id="destination-name">{{ destination }}</span></h1>
+        <p class="page-subtitle">Discover our top recommended attractions for your trip to {{ destination }}. From landmarks to cultural sites, we've handpicked the best places to ensure an unforgettable experience.</p>
+        
+        <div class="attractions-container">
+            <div class="attraction-list" id="attraction-list">
+                <div class="loading">Loading attraction recommendations...</div>
+            </div>
+            
+            <div class="attraction-photo-container" id="fixed-attraction-photo">
+                <!-- Fixed attraction photo will be displayed here -->
+                <div class="no-photo">Loading attraction photos...</div>
+            </div>
+        </div>
+        
+        <div class="load-more-container">
+            <button id="load-more-btn" style="display: none;">Load More Attractions</button>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuBtn = document.querySelector('.menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                });
+            }
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.menu-btn') && !event.target.closest('.nav-links')) {
+                    navLinks.classList.remove('active');
+                }
+            });
+            
+            // Get destination from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const destination = urlParams.get('destination') || 'Popular Destinations';            
+            document.getElementById('destination-name').textContent = destination;
+            document.title = `TravelWise - Attractions in ${destination}`;
+            
+            // Fetch attraction recommendations
+            fetchAttractionRecommendations(destination);
+            
+            // Setup scroll event listener to update fixed photo
+            window.addEventListener('scroll', updateFixedAttractionPhoto);
+            
+            // Setup load more button
+            document.getElementById('load-more-btn').addEventListener('click', function() {
+                const offset = document.querySelectorAll('.attraction-card').length;
+                fetchMoreAttractionRecommendations(destination, offset);
+            });
+        });
+        
+        let allAttractions = [];
+        let currentAttractionIndex = 0;
+        
+        function fetchAttractionRecommendations(destination) {
+            fetch(`/api/attractions?destination=${encodeURIComponent(destination)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        allAttractions = data.attractions;
+                        renderAttractionRecommendations(data.attractions);
+                        if (data.attractions.length > 0) {
+                            updateFixedAttractionPhoto();
+                            document.getElementById('load-more-btn').style.display = 'block';
+                        }
+                    } else {
+                        document.getElementById('attraction-list').innerHTML = `<p>Error: ${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    document.getElementById('attraction-list').innerHTML = `
+                        <div class="attraction-card">
+                            <div class="attraction-info">
+                                <p>Error fetching attraction recommendations. Please try again later.</p>
+                                <p>Technical details: ${error.message}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+        
+        function fetchMoreAttractionRecommendations(destination, offset) {
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            loadMoreBtn.textContent = 'Loading...';
+            loadMoreBtn.disabled = true;
+            
+            fetch(`/api/more-attractions?destination=${encodeURIComponent(destination)}&offset=${offset}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.attractions.length > 0) {
+                        allAttractions = [...allAttractions, ...data.attractions];
+                        appendAttractionRecommendations(data.attractions);
+                        loadMoreBtn.textContent = 'Load More Attractions';
+                        loadMoreBtn.disabled = false;
+                    } else {
+                        loadMoreBtn.textContent = 'No More Attractions Available';
+                        loadMoreBtn.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    loadMoreBtn.textContent = 'Load More Attractions';
+                    loadMoreBtn.disabled = false;
+                    alert('Error loading more attractions. Please try again.');
+                });
+        }
+        
+        function renderAttractionRecommendations(attractions) {
+            const attractionListElement = document.getElementById('attraction-list');
+            
+            if (!attractions || attractions.length === 0) {
+                attractionListElement.innerHTML = '<p>No attraction recommendations available for this destination.</p>';
+                return;
+            }
+            
+            attractionListElement.innerHTML = '';
+            
+            attractions.forEach((attraction, index) => {
+                const attractionElement = document.createElement('div');
+                attractionElement.className = 'attraction-card';
+                attractionElement.id = `attraction-${index}`;
+                attractionElement.dataset.index = index;
+                
+                attractionElement.innerHTML = `
+                    <div class="attraction-info">
+                        <h2 class="attraction-name">${attraction.name}</h2>
+                        <div class="attraction-location">${attraction.location}</div>
+                        <div class="attraction-type">${attraction.type}</div>
+                        <p class="attraction-description">${attraction.description}</p>
+                        
+                        <div class="attraction-details">
+                            ${attraction.opening_hours && attraction.opening_hours.length > 0 ? 
+                                `<h3 class="section-title">Opening Hours</h3>
+                                <div class="opening-hours">
+                                    <ul>
+                                        ${attraction.opening_hours.map(hours => `<li>${hours}</li>`).join('')}
+                                    </ul>
+                                </div>` : ''
+                            }
+                            
+                            ${attraction.address ? 
+                                `<div class="attraction-address">
+                                    <h3 class="section-title">Address</h3>
+                                    <p>${attraction.address}</p>
+                                </div>` : ''
+                            }
+                        </div>
+                        
+                        <h3 class="section-title">Ratings</h3>
+                        <div class="ratings">
+                            <div class="rating-item">
+                                <div class="rating-label">Overall</div>
+                                <div class="rating-score">${attraction.rating || 'N/A'} <span class="star">★</span></div>
+                                <div class="total-reviews">${attraction.total_reviews ? `(${attraction.total_reviews} reviews)` : ''}</div>
+                            </div>
+                        </div>
+                        
+                        ${attraction.featured_review ? 
+                            `<h3 class="section-title">Featured Review</h3>
+                            <div class="review">
+                                <div class="review-header">
+                                    <div class="review-author">${attraction.featured_review.author}</div>
+                                    <div class="review-date">${attraction.featured_review.time || 'Recently'}</div>
+                                </div>
+                                <div class="review-rating">${'★'.repeat(Math.round(attraction.featured_review.rating))}${'☆'.repeat(5-Math.round(attraction.featured_review.rating))}</div>
+                                <div class="review-text">"${attraction.featured_review.text}"</div>
+                            </div>` : ''
+                        }
+                        
+                        ${attraction.website ? 
+                            `<div class="attraction-website">
+                                <a href="${attraction.website}" target="_blank" rel="noopener noreferrer">Visit Website</a>
+                            </div>` : ''
+                        }
+                    </div>
+                `;
+                
+                attractionListElement.appendChild(attractionElement);
+            });
+        }
+        
+        function appendAttractionRecommendations(attractions) {
+            const attractionListElement = document.getElementById('attraction-list');
+            const startIndex = allAttractions.length - attractions.length;
+            
+            attractions.forEach((attraction, relativeIndex) => {
+                const index = startIndex + relativeIndex;
+                const attractionElement = document.createElement('div');
+                attractionElement.className = 'attraction-card';
+                attractionElement.id = `attraction-${index}`;
+                attractionElement.dataset.index = index;
+                
+                attractionElement.innerHTML = `
+                    <div class="attraction-info">
+                        <h2 class="attraction-name">${attraction.name}</h2>
+                        <div class="attraction-location">${attraction.location}</div>
+                        <div class="attraction-type">${attraction.type}</div>
+                        <p class="attraction-description">${attraction.description}</p>
+                        
+                        <div class="attraction-details">
+                            ${attraction.opening_hours && attraction.opening_hours.length > 0 ? 
+                                `<h3 class="section-title">Opening Hours</h3>
+                                <div class="opening-hours">
+                                    <ul>
+                                        ${attraction.opening_hours.map(hours => `<li>${hours}</li>`).join('')}
+                                    </ul>
+                                </div>` : ''
+                            }
+                            
+                            ${attraction.address ? 
+                                `<div class="attraction-address">
+                                    <h3 class="section-title">Address</h3>
+                                    <p>${attraction.address}</p>
+                                </div>` : ''
+                            }
+                        </div>
+                        
+                        <h3 class="section-title">Ratings</h3>
+                        <div class="ratings">
+                            <div class="rating-item">
+                                <div class="rating-label">Overall</div>
+                                <div class="rating-score">${attraction.rating || 'N/A'} <span class="star">★</span></div>
+                                <div class="total-reviews">${attraction.total_reviews ? `(${attraction.total_reviews} reviews)` : ''}</div>
+                            </div>
+                        </div>
+                        
+                        ${attraction.featured_review ? 
+                            `<h3 class="section-title">Featured Review</h3>
+                            <div class="review">
+                                <div class="review-header">
+                                    <div class="review-author">${attraction.featured_review.author}</div>
+                                    <div class="review-date">${attraction.featured_review.time || 'Recently'}</div>
+                                </div>
+                                <div class="review-rating">${'★'.repeat(Math.round(attraction.featured_review.rating))}${'☆'.repeat(5-Math.round(attraction.featured_review.rating))}</div>
+                                <div class="review-text">"${attraction.featured_review.text}"</div>
+                            </div>` : ''
+                        }
+                        
+                        ${attraction.website ? 
+                            `<div class="attraction-website">
+                                <a href="${attraction.website}" target="_blank" rel="noopener noreferrer">Visit Website</a>
+                            </div>` : ''
+                        }
+                    </div>
+                `;
+                
+                attractionListElement.appendChild(attractionElement);
+            });
+            
+            updateFixedAttractionPhoto();
+        }
+        
+        function updateFixedAttractionPhoto() {
+            if (allAttractions.length === 0) return;
+            
+            const attractionCards = document.querySelectorAll('.attraction-card');
+            if (attractionCards.length === 0) return;
+            
+            const fixedPhotoElement = document.getElementById('fixed-attraction-photo');
+            const viewportHeight = window.innerHeight;
+            const scrollTop = window.scrollY;
+            
+            // Determine which attraction card is currently most visible in the viewport
+            let maxVisibleHeight = 0;
+            let mostVisibleAttractionIndex = 0;
+            
+            attractionCards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const visibleHeight = Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
+                
+                if (visibleHeight > maxVisibleHeight) {
+                    maxVisibleHeight = visibleHeight;
+                    mostVisibleAttractionIndex = parseInt(card.dataset.index);
+                }
+            });
+            
+            // Update photo only if the most visible attraction changed
+            if (currentAttractionIndex !== mostVisibleAttractionIndex) {
+                currentAttractionIndex = mostVisibleAttractionIndex;
+                const attraction = allAttractions[currentAttractionIndex];
+                
+                if (attraction && attraction.photos && attraction.photos.length > 0) {
+                    fixedPhotoElement.innerHTML = `
+                        <img src="${attraction.photos[0]}" alt="${attraction.name}" class="attraction-photo">
+                        <div class="attraction-photo-caption">${attraction.name}</div>
+                    `;
+                } else {
+                    // Use a placeholder if no photos available
+                    fixedPhotoElement.innerHTML = `
+                        <img src="https://source.unsplash.com/random/600x400?landmark,${currentAttractionIndex}" alt="${attraction.name}" class="attraction-photo">
+                        <div class="attraction-photo-caption">${attraction.name}</div>
+                    `;
+                }
+            }
+        }
+    </script>
+</body>

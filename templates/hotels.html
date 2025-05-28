@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TravelWise - Hotel Recommendations</title>
+        <style>
+            :root {
+              --primary: #0066cc;
+              --accent: #ff4d4d;
+              --dark: #111827;
+              --darker: #0a0c13;
+              --light: #f9fafb;
+              --gray: #6b7280;
+              --text: #e2e8f0;
+            }
+            
+            body {
+              font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+              margin: 0;
+              padding: 0;
+              background-color: var(--darker);
+              color: var(--text);
+              min-height: 100vh;
+            }
+            
+            /* Navbar styling */
+            .navbar {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              background-color: rgba(10, 12, 19, 0.85);
+              padding: 1rem 2rem;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+              position: fixed;
+              width: 100%;
+              top: 0;
+              left: 0;
+              z-index: 1000;
+              backdrop-filter: blur(10px);
+              border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+              box-sizing: border-box;
+            }
+            
+            .logo {
+              color: var(--primary);
+              font-size: 1.5rem;
+              font-weight: 700;
+              display: flex;
+              align-items: center;
+            }
+            
+            .logo::before {
+              content: "✈️";
+              margin-right: 10px;
+            }
+            
+            .nav-links {
+              display: flex;
+              list-style: none;
+              margin: 0;
+              padding: 0;
+            }
+            
+            .nav-links li {
+              margin-left: 1.5rem;
+            }
+            
+            .nav-links a {
+              color: var(--text);
+              text-decoration: none;
+              font-weight: 500;
+              font-size: 0.9rem;
+              letter-spacing: 0.5px;
+              position: relative;
+              padding: 0.5rem 0;
+              transition: all 0.3s;
+            }
+            
+            .nav-links a::after {
+              content: '';
+              position: absolute;
+              bottom: -2px;
+              left: 0;
+              width: 0;
+              height: 2px;
+              background-color: var(--primary);
+              transition: width 0.3s ease;
+            }
+            
+            .nav-links a:hover {
+              color: var(--light);
+            }
+            
+            .nav-links a:hover::after {
+              width: 100%;
+            }
+            
+            .nav-links li:last-child a {
+              background-color: var(--primary);
+              color: white;
+              padding: 0.5rem 1rem;
+              border-radius: 50px;
+              transition: all 0.3s ease;
+            }
+            
+            .nav-links li:last-child a:hover {
+              background-color: #0052a3;
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+            }
+            
+            .menu-btn {
+              display: none;
+              background: none;
+              border: none;
+              font-size: 1.5rem;
+              cursor: pointer;
+              color: var(--light);
+            }
+            
+            /* Main content container */
+            .container {
+              max-width: 1400px;
+              margin: 0 auto;
+              padding: 7rem 2rem 2rem;
+            }
+            
+            .page-title {
+              color: var(--light);
+              font-size: 2.5rem;
+              margin-bottom: 2rem;
+              font-weight: 700;
+              letter-spacing: -0.5px;
+              position: relative;
+              padding-bottom: 0.75rem;
+            }
+            
+            .page-title::after {
+              content: "";
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              width: 60px;
+              height: 4px;
+              background-color: var(--accent);
+              border-radius: 2px;
+            }
+            
+            .page-subtitle {
+              color: var(--gray);
+              font-size: 1.1rem;
+              margin-bottom: 3rem;
+              max-width: 800px;
+            }
+            
+            /* Hotels container with two-column layout */
+            .hotels-container {
+              display: flex;
+              gap: 2rem;
+            }
+            
+            .hotel-list {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              gap: 2rem;
+            }
+            
+            .hotel-photo-container {
+              width: 40%;
+              position: sticky;
+              top: 100px;
+              height: calc(100vh - 150px);
+              background-color: rgba(255, 255, 255, 0.03);
+              border-radius: 12px;
+              overflow: hidden;
+            }
+            
+            .hotel-photo {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              transition: opacity 0.5s ease;
+            }
+            
+            .hotel-photo-caption {
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+              color: var(--light);
+              padding: 1.5rem;
+              font-size: 1.5rem;
+              font-weight: 600;
+            }
+            
+            .no-photo {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              height: 100%;
+              color: var(--gray);
+              text-align: center;
+              padding: 2rem;
+            }
+            
+            /* Hotel cards */
+            .hotel-card {
+              background-color: rgba(255, 255, 255, 0.03);
+              border-radius: 12px;
+              overflow: hidden;
+              border: 1px solid rgba(255, 255, 255, 0.05);
+              transition: transform 0.3s, box-shadow 0.3s;
+              padding: 2rem;
+            }
+            
+            .hotel-card:hover {
+              transform: translateY(-5px);
+              box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+            }
+            
+            .hotel-info {
+              overflow-y: auto;
+              scrollbar-width: thin;
+              scrollbar-color: var(--primary) var(--dark);
+            }
+            
+            .hotel-info::-webkit-scrollbar {
+              width: 6px;
+            }
+            
+            .hotel-info::-webkit-scrollbar-track {
+              background: var(--dark);
+            }
+            
+            .hotel-info::-webkit-scrollbar-thumb {
+              background-color: var(--primary);
+              border-radius: 3px;
+            }
+            
+            .hotel-name {
+              font-size: 1.8rem;
+              color: var(--light);
+              margin-top: 0;
+              margin-bottom: 0.75rem;
+            }
+            
+            .hotel-location {
+              color: var(--gray);
+              font-size: 0.9rem;
+              margin-bottom: 1rem;
+              display: flex;
+              align-items: center;
+            }
+            
+            .hotel-location::before {
+              content: "📍";
+              margin-right: 6px;
+            }
+            
+            .hotel-description {
+              line-height: 1.6;
+              margin-bottom: 1.5rem;
+            }
+            
+            .hotel-price {
+              font-size: 1.4rem;
+              color: var(--primary);
+              font-weight: 600;
+              margin-bottom: 1rem;
+            }
+            
+            .hotel-price span {
+              font-size: 0.9rem;
+              color: var(--gray);
+              font-weight: normal;
+            }
+            
+            .section-title {
+              color: var(--light);
+              font-size: 1.2rem;
+              margin-top: 2rem;
+              margin-bottom: 1rem;
+              font-weight: 600;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+              padding-bottom: 0.5rem;
+            }
+            
+            /* Reviews section */
+            .reviews {
+              margin-top: 2rem;
+            }
+            
+            .review {
+              padding: 1rem 0;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            
+            .review:last-child {
+              border-bottom: none;
+            }
+            
+            .review-author {
+              font-weight: 600;
+              margin-bottom: 0.5rem;
+            }
+            
+            .review-date {
+              color: var(--gray);
+              font-size: 0.8rem;
+              margin-bottom: 0.5rem;
+            }
+            
+            .review-text {
+              font-style: italic;
+              color: var(--gray);
+            }
+            
+            /* Ratings section */
+            .ratings {
+              margin-top: 2rem;
+            }
+            
+            .rating-item {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 0.5rem;
+            }
+            
+            .rating-label {
+              color: var(--gray);
+            }
+            
+            .rating-stars {
+              color: #ffd700;
+            }
+            
+            /* Loading state */
+            .loading {
+              text-align: center;
+              padding: 3rem;
+              font-size: 1.2rem;
+              color: var(--gray);
+            }
+            
+            /* Load more button */
+            .load-more-container {
+              text-align: center;
+              margin-top: 3rem;
+            }
+            
+            #load-more-btn {
+              background-color: var(--primary);
+              color: white;
+              border: none;
+              padding: 0.75rem 2rem;
+              border-radius: 50px;
+              font-size: 1rem;
+              font-weight: 500;
+              cursor: pointer;
+              transition: all 0.3s ease;
+            }
+            
+            #load-more-btn:hover {
+              background-color: #0052a3;
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+            }
+            
+            #load-more-btn:disabled {
+              background-color: var(--gray);
+              cursor: not-allowed;
+              transform: none;
+              box-shadow: none;
+            }
+            
+            /* Responsive design */
+            @media (max-width: 1200px) {
+              .hotels-container {
+                flex-direction: column-reverse;
+              }
+              
+              .hotel-photo-container {
+                width: 100%;
+                position: relative;
+                top: 0;
+                height: 400px;
+                margin-bottom: 2rem;
+              }
+            }
+            
+            @media (max-width: 768px) {
+              .navbar {
+                padding: 1rem;
+              }
+              
+              .menu-btn {
+                display: block;
+              }
+
+    
+            #fixed-hotel-photo .hotel-photo-caption {
+                    font-size: 1.2rem;
+                    padding: 1rem;
+            }
+            
+              .nav-links {
+                position: fixed;
+                top: 70px;
+                right: -100%;
+                flex-direction: column;
+                background-color: var(--darker);
+                width: 80%;
+                height: calc(100vh - 70px);
+                padding: 2rem;
+                transition: right 0.3s ease;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+              }
+              
+              .nav-links.active {
+                right: 0;
+              }
+              
+              .nav-links li {
+                margin: 1.25rem 0;
+              }
+              
+              .container {
+                padding: 7rem 1rem 1rem;
+              }
+              
+              .page-title {
+                font-size: 2rem;
+              }
+              
+              .hotel-photo-container {
+                height: 300px;
+              }
+            }
+        </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">TravelWise</div>
+        <button class="menu-btn">☰</button>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/recommendations">Get Recommendations</a></li>
+            <li><a href="/plan-trip">Plan Trip</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <h1 class="page-title">Best Hotels in <span id="destination-name">{{ destination }}</span></h1>
+        <p class="page-subtitle">Discover our top recommended hotels for your stay in {{ destination }}. From luxury to budget-friendly options, we've handpicked the best accommodations for your perfect vacation.</p>
+        
+        <div class="hotels-container">
+            <div class="hotel-list" id="hotel-list">
+                <div class="loading">Loading hotel recommendations...</div>
+            </div>
+            
+            <div class="hotel-photo-container" id="fixed-hotel-photo">
+                <!-- Fixed hotel photo will be displayed here -->
+                <div class="no-photo">Loading hotel photos...</div>
+            </div>
+        </div>
+        
+        <div class="load-more-container">
+            <button id="load-more-btn" style="display: none;">Load More Hotels</button>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuBtn = document.querySelector('.menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                });
+            }
+            // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.menu-btn') && !event.target.closest('.nav-links')) {
+                navLinks.classList.remove('active');
+            }
+        });
+            
+            // Get destination from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const destination = urlParams.get('destination') || 'Popular Destinations';            
+            document.getElementById('destination-name').textContent = destination;
+            document.title = `TravelWise - Hotels in ${destination}`;
+            
+            // Fetch hotel recommendations
+            fetchHotelRecommendations(destination);
+            
+            // Setup scroll event listener to update fixed photo
+            window.addEventListener('scroll', updateFixedHotelPhoto);
+            
+            // Setup load more button
+            document.getElementById('load-more-btn').addEventListener('click', function() {
+                const offset = document.querySelectorAll('.hotel-card').length;
+                fetchMoreHotelRecommendations(destination, offset);
+            });
+        });
+        
+        let allHotels = [];
+        let currentHotelIndex = 0;
+        
+        function fetchHotelRecommendations(destination) {
+            fetch(`/api/hotel-recommendations?destination=${encodeURIComponent(destination)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        allHotels = data.hotels;
+                        renderHotelRecommendations(data.hotels);
+                        if (data.hotels.length > 0) {
+                            updateFixedHotelPhoto();
+                            document.getElementById('load-more-btn').style.display = 'block';
+                        }
+                    } else {
+                        document.getElementById('hotel-list').innerHTML = `<p>Error: ${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    document.getElementById('hotel-list').innerHTML = `
+                        <div class="hotel-card">
+                            <div class="hotel-info">
+                                <p>Error fetching hotel recommendations. Please try again later.</p>
+                                <p>Technical details: ${error.message}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+        
+        function fetchMoreHotelRecommendations(destination, offset) {
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            loadMoreBtn.textContent = 'Loading...';
+            loadMoreBtn.disabled = true;
+            
+            fetch(`/api/more-recommendations?destination=${encodeURIComponent(destination)}&offset=${offset}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.hotels.length > 0) {
+                        allHotels = [...allHotels, ...data.hotels];
+                        appendHotelRecommendations(data.hotels);
+                        loadMoreBtn.textContent = 'Load More Hotels';
+                        loadMoreBtn.disabled = false;
+                    } else {
+                        loadMoreBtn.textContent = 'No More Hotels Available';
+                        loadMoreBtn.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    loadMoreBtn.textContent = 'Load More Hotels';
+                    loadMoreBtn.disabled = false;
+                    alert('Error loading more hotels. Please try again.');
+                });
+        }
+        
+        function renderHotelRecommendations(hotels) {
+            const hotelListElement = document.getElementById('hotel-list');
+            
+            if (!hotels || hotels.length === 0) {
+                hotelListElement.innerHTML = '<p>No hotel recommendations available for this destination.</p>';
+                return;
+            }
+            
+            hotelListElement.innerHTML = '';
+            
+            hotels.forEach((hotel, index) => {
+                const hotelElement = document.createElement('div');
+                hotelElement.className = 'hotel-card';
+                hotelElement.id = `hotel-${index}`;
+                hotelElement.dataset.index = index;
+                
+                hotelElement.innerHTML = `
+                    <div class="hotel-info">
+                        <h2 class="hotel-name">${hotel.name}</h2>
+                        <div class="hotel-location">${hotel.location}</div>
+                        <p class="hotel-description">${hotel.description}</p>
+                        <div class="hotel-price">${hotel.price} <span>per night</span></div>
+                        
+                        <h3 class="section-title">Reviews</h3>
+                        <div class="reviews">
+                            ${hotel.reviews && hotel.reviews.length > 0 ? 
+                                hotel.reviews.map(review => `
+                                    <div class="review">
+                                        <div class="review-header">
+                                            <div class="review-author">${review.author}</div>
+                                            <div class="review-date">${review.time || 'Recently'}</div>
+                                        </div>
+                                        <div class="review-rating">${'★'.repeat(Math.round(review.rating))}${'☆'.repeat(5-Math.round(review.rating))}</div>
+                                        <div class="review-text">"${review.text}"</div>
+                                    </div>
+                                `).join('') : 
+                                '<p>No reviews available for this hotel.</p>'
+                            }
+                        </div>
+                        
+                        <h3 class="section-title">Ratings</h3>
+                        <div class="ratings">
+                            <div class="rating-item">
+                                <div class="rating-label">Overall</div>
+                                <div class="rating-score">${hotel.rating || 'N/A'} <span class="star">★</span></div>
+                            </div>
+                            ${hotel.rating_details && hotel.rating_details.categories ? 
+                                Object.entries(hotel.rating_details.categories).map(([category, score]) => `
+                                    <div class="rating-item">
+                                        <div class="rating-label">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                                        <div class="rating-score">${score} <span class="star">★</span></div>
+                                    </div>
+                                `).join('') : ''
+                            }
+                        </div>
+                    </div>
+                `;
+                
+                hotelListElement.appendChild(hotelElement);
+            });
+        }
+        
+        function appendHotelRecommendations(hotels) {
+            const hotelListElement = document.getElementById('hotel-list');
+            const startIndex = allHotels.length - hotels.length;
+            
+            hotels.forEach((hotel, relativeIndex) => {
+                const index = startIndex + relativeIndex;
+                const hotelElement = document.createElement('div');
+                hotelElement.className = 'hotel-card';
+                hotelElement.id = `hotel-${index}`;
+                hotelElement.dataset.index = index;
+                
+                hotelElement.innerHTML = `
+                    <div class="hotel-info">
+                        <h2 class="hotel-name">${hotel.name}</h2>
+                        <div class="hotel-location">${hotel.location}</div>
+                        <p class="hotel-description">${hotel.description}</p>
+                        <div class="hotel-price">${hotel.price} <span>per night</span></div>
+                        
+                        <h3 class="section-title">Reviews</h3>
+                        <div class="reviews">
+                            ${hotel.reviews && hotel.reviews.length > 0 ? 
+                                hotel.reviews.map(review => `
+                                    <div class="review">
+                                        <div class="review-header">
+                                            <div class="review-author">${review.author}</div>
+                                            <div class="review-date">${review.time || 'Recently'}</div>
+                                        </div>
+                                        <div class="review-rating">${'★'.repeat(Math.round(review.rating))}${'☆'.repeat(5-Math.round(review.rating))}</div>
+                                        <div class="review-text">"${review.text}"</div>
+                                    </div>
+                                `).join('') : 
+                                '<p>No reviews available for this hotel.</p>'
+                            }
+                        </div>
+                        
+                        <h3 class="section-title">Ratings</h3>
+                        <div class="ratings">
+                            <div class="rating-item">
+                                <div class="rating-label">Overall</div>
+                                <div class="rating-score">${hotel.rating || 'N/A'} <span class="star">★</span></div>
+                            </div>
+                            ${hotel.rating_details && hotel.rating_details.categories ? 
+                                Object.entries(hotel.rating_details.categories).map(([category, score]) => `
+                                    <div class="rating-item">
+                                        <div class="rating-label">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                                        <div class="rating-score">${score} <span class="star">★</span></div>
+                                    </div>
+                                `).join('') : ''
+                            }
+                        </div>
+                    </div>
+                `;
+                
+                hotelListElement.appendChild(hotelElement);
+            });
+            
+            updateFixedHotelPhoto();
+        }
+        
+        function updateFixedHotelPhoto() {
+            if (allHotels.length === 0) return;
+            
+            const hotelCards = document.querySelectorAll('.hotel-card');
+            if (hotelCards.length === 0) return;
+            
+            const fixedPhotoElement = document.getElementById('fixed-hotel-photo');
+            const viewportHeight = window.innerHeight;
+            const scrollTop = window.scrollY;
+            
+            // Determine which hotel card is currently most visible in the viewport
+            let maxVisibleHeight = 0;
+            let mostVisibleHotelIndex = 0;
+            
+            hotelCards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const visibleHeight = Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
+                
+                if (visibleHeight > maxVisibleHeight) {
+                    maxVisibleHeight = visibleHeight;
+                    mostVisibleHotelIndex = parseInt(card.dataset.index);
+                }
+            });
+            
+            // Update photo only if the most visible hotel changed
+            if (currentHotelIndex !== mostVisibleHotelIndex) {
+                currentHotelIndex = mostVisibleHotelIndex;
+                const hotel = allHotels[currentHotelIndex];
+                
+                if (hotel && hotel.photos && hotel.photos.length > 0) {
+                    fixedPhotoElement.innerHTML = `
+                        <img src="${hotel.photos[0]}" alt="${hotel.name}" class="hotel-photo">
+                        <div class="hotel-photo-caption">${hotel.name}</div>
+                    `;
+                } else {
+                    // Use a placeholder if no photos available
+                    fixedPhotoElement.innerHTML = `
+                        <img src="https://source.unsplash.com/random/600x400?hotel,${currentHotelIndex}" alt="${hotel.name}" class="hotel-photo">
+                        <div class="hotel-photo-caption">${hotel.name}</div>
+                    `;
+                }
+            }
+        }
+    </script>
+</body>
