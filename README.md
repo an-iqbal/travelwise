@@ -1,55 +1,105 @@
 # TravelWise
 
-**TravelWise** is a smart travel planning assistant that helps users plan trips by recommending destinations, hotels, places to visit, restaurants, and more. It generates a complete itinerary based on the number of days, budget, preferred activities, and number of people.
+**TravelWise** is a comprehensive and intelligent travel planning web application that delivers personalized recommendations for destinations, hotels, restaurants, must-visit places, and adventure activities. It simplifies the end-to-end process of planning a trip by integrating real-time data, AI-based suggestions, interactive exploration, and downloadable itineraries in PDF format.
 
 ---
 
 ## Features
 
-- Destination planner with personalized recommendations
-- Hotel, restaurant, and attraction suggestions
-- Day-wise itinerary generation based on:
-  - Number of days
-  - Budget
-  - Activities
+- Personalized destination, hotel, restaurant, and activity recommendations
+- Explore detailed location information with photos, reviews, and ratings
+- Smart itinerary generation based on:
+  - Number of travel days
   - Group size
-- Google Maps integration for location visualization
-- Gemini API-based intelligent suggestions and activity planning
+  - Budget
+  - Preferred activities
+- Downloadable PDF trip plans
+- Integration with Google Maps for geolocation and exploration
+- Gemini API-based content generation for enhanced recommendations
 
 ---
 
-## Technologies Used
+## Tech Stack
 
-- Gemini API for travel and activity recommendations
-- Google Maps API for geolocation and map features
-- Flask for backend
-- HTML, CSS, and JavaScript for frontend
+**Frontend:**
+- HTML
+- CSS
+- JavaScript
+
+**Backend:**
+- Python (Flask)
+
+**APIs:**
+- Gemini API (for intelligent recommendations and dynamic content)
+- Google Maps API (for maps, photos, and location details)
+- Weather API (optional enhancements)
+
+**Tools:**
+- Postman (for backend testing)
+- SonarQube (for static code analysis)
+- Jira (for project management and sprint tracking)
 
 ---
 
-## Getting Started
+## Setup Instructions
 
-**1. Clone the repository:**
+1. **Clone the Repository**
 
-   git clone https://github.com/an-iqbal/travelwise.git
-   cd travelwise
+```bash
+git clone https://github.com/an-iqbal/travelwise.git
+cd travelwise
+```
+
    
-**2. Install the required Python packages:**
+2. **Install the required Python packages:**
 
-   pip install -r requirements.txt
+```bash  
+pip install -r requirements.txt
+```
 
-**3. Create a .env file in the root directory and add your API keys:**
+3. **Create a .env file in the root directory and add your API keys:**
 
-   GEMINI_API_KEY=your_gemini_api_key
-   GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+```bash
+GEMINI_API_KEY=your_gemini_api_key
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+```
 
-**4. Run the application:**
+4. **Run the application:**
 
-   python app.py
+```bash
+python app.py
+```
 
-**5. Open your browser and visit:**
+5. **Open your browser and navigate to:**
 
-   http://127.0.0.1:5000
+```bash
+http://127.0.0.1:5000
+```
+
+---
+
+##  Screenshots
+
+###  Home Page
+![Home Page](Screenshots/Homepage.png)
+
+###  Plan Trip
+![Plan_Trip](Screenshots/Plan_Trip.png)
+
+###  Travel Itinerary
+![Travel_Itinerary](Screenshots/Travel_Itinerary.png)
+
+###  Travel Recommendation
+![Travel_Recommendation](Screenshots/Travel_Recommendation.png)
+
+###  Explore City
+![Explore_City](Screenshots/Explore_City.png)
+
+###  Hotel Recommendation
+![Hotel_Recommendation](Screenshots/Hotel_Recommendation.png)
+
+###  Restaurant Recommendation
+![Restaurant_Recommendation](Screenshots/Restaurant_Recommendation.png)
 
 ---
 
